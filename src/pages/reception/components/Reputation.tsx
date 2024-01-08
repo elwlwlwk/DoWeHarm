@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
-import { PersonReputation, ReceptionRow } from "../../../service/types";
+import { useContext, useEffect, useState } from "react";
+import {
+  PersonReputation,
+  ReceptionRow,
+  isErrorResponse,
+} from "../../../service/types";
 import { reputationService } from "../../../service/ReputationService";
 import { authService } from "../../../service/AuthService";
 import { Button, Flex, Rate, Skeleton, Typography } from "antd";
 import styled from "styled-components";
-import { GRAY } from "../../../styles";
+import { ErrorMessage, GRAY } from "../../../styles";
+import { NotiContext } from "../../../App";
+import { receptionService } from "../../../service/ReceptionService";
+import { ReputationErrors } from "../../../errors";
 
 interface ReputationProps {
   reception: ReceptionRow;
@@ -12,6 +19,8 @@ interface ReputationProps {
 }
 
 export const Reputation = ({ reception, onClose }: ReputationProps) => {
+  const { notify } = useContext(NotiContext);
+
   const [reputation, setReputation] = useState<PersonReputation>();
   const [characterScore, setCharacterScore] = useState<number>();
   const [revisitScore, setRevisitScore] = useState<number>();
@@ -39,6 +48,44 @@ export const Reputation = ({ reception, onClose }: ReputationProps) => {
     reputation.reputationLog.reduce((acc, cur) => {
       return acc + cur.revisit;
     }, 0) / reputationLogNum;
+
+  const doReputation = async (
+    characterScore: number,
+    revisitScore: number,
+    isSkip?: boolean
+  ) => {
+    try {
+      await reputationService.postReputation(
+        authService.getAuthToken(),
+        reception,
+        {
+          character: characterScore,
+          revisit: revisitScore,
+          rater: authService.user,
+        },
+        { isSkip }
+      );
+      await receptionService.completeReception(
+        authService.getAuthToken(),
+        reception.name,
+        reception.socialNum1,
+        reception.socialNum2
+      );
+      notify("평가가 완료되었습니다.");
+    } catch (e) {
+      if (isErrorResponse(e)) {
+        notify(<ErrorMessage>{e.message}</ErrorMessage>);
+        if (e.message === ReputationErrors.ALREADY_RATED) {
+          await receptionService.completeReception(
+            authService.getAuthToken(),
+            reception.name,
+            reception.socialNum1,
+            reception.socialNum2
+          );
+        }
+      }
+    }
+  };
 
   return (
     <>
@@ -69,12 +116,12 @@ export const Reputation = ({ reception, onClose }: ReputationProps) => {
       <RatingFooterContainer justify={"flex-end"} gap={"small"}>
         <Button
           type={"default"}
-          onClick={() => {
-            // setReputation(undefined);
+          onClick={async () => {
+            await doReputation(5, 5, true);
             onClose && onClose();
           }}
         >
-          닫기
+          스킵 (5점)
         </Button>
         <Button
           type={"primary"}
@@ -87,16 +134,8 @@ export const Reputation = ({ reception, onClose }: ReputationProps) => {
             }
 
             if (characterScore && revisitScore) {
-              await reputationService.postReputation(
-                authService.getAuthToken(),
-                reception,
-                {
-                  character: characterScore,
-                  revisit: revisitScore,
-                  rater: authService.user,
-                }
-              );
-              // onClose && onClose();
+              await doReputation(characterScore, revisitScore);
+              onClose && onClose();
             }
           }}
         >

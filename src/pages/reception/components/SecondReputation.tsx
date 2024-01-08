@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
-import { PersonReputation, ReceptionRow } from "../../../service/types";
+import { useContext, useEffect, useState } from "react";
+import {
+  PersonReputation,
+  ReceptionRow,
+  isErrorResponse,
+} from "../../../service/types";
 import { reputationService } from "../../../service/ReputationService";
 import { authService } from "../../../service/AuthService";
 import { Button, Flex, Rate, Skeleton, Typography } from "antd";
 import styled from "styled-components";
-import { GRAY } from "../../../styles";
+import { ErrorMessage, GRAY } from "../../../styles";
+import { NotiContext } from "../../../App";
 
 interface SecondReputationProps {
   reception: ReceptionRow;
@@ -15,6 +20,8 @@ export const SecondReputation = ({
   reception,
   onClose,
 }: SecondReputationProps) => {
+  const { notify } = useContext(NotiContext);
+
   const [reputation, setReputation] = useState<PersonReputation>();
   const [characterScore, setCharacterScore] = useState<number>();
   const [revisitScore, setRevisitScore] = useState<number>();
@@ -52,7 +59,7 @@ export const SecondReputation = ({
       <RatingBodyContainer>
         <RatingsContainer gap={"small"}>
           <Rating
-            title="Prev Character"
+            title="My Prev Character"
             score={curCharacterScore}
             displayWarning={characterWarning}
             onRate={(score) => {
@@ -61,7 +68,7 @@ export const SecondReputation = ({
             }}
           />
           <Rating
-            title="Prev Revisit"
+            title="My Prev Revisit"
             score={curRevisitScore}
             displayWarning={revisitWarning}
             onRate={(score) => {
@@ -92,18 +99,25 @@ export const SecondReputation = ({
             }
 
             if (characterScore && revisitScore) {
-              await reputationService.postReputation(
-                authService.getAuthToken(),
-                reception,
-                {
-                  rater: authService.user,
-                  character: characterScore,
-                  revisit: revisitScore,
-                },
-                {
-                  isSecondReputation: true,
+              try {
+                await reputationService.postReputation(
+                  authService.getAuthToken(),
+                  reception,
+                  {
+                    rater: authService.user,
+                    character: characterScore,
+                    revisit: revisitScore,
+                  },
+                  {
+                    isSecondReputation: true,
+                  }
+                );
+              } catch (e) {
+                console.log(e);
+                if (isErrorResponse(e)) {
+                  notify(<ErrorMessage>{e.message}</ErrorMessage>);
                 }
-              );
+              }
               // onClose && onClose();
             }
           }}

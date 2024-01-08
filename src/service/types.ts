@@ -2,6 +2,11 @@ export interface ErrorResponse {
   message: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isErrorResponse(obj: any): obj is ErrorResponse {
+  return obj.message !== undefined;
+}
+
 export interface AuthInfo {
   id: string;
   isRater: boolean;

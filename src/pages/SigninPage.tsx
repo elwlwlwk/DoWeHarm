@@ -7,6 +7,7 @@ import { useContext, useState } from "react";
 import { receptionService } from "../service/ReceptionService";
 import { NotiContext } from "../App";
 import { ErrorMessage } from "../styles";
+import { isErrorResponse } from "../service/types";
 
 export const SigninPage = () => {
   const { notify } = useContext(NotiContext);
@@ -35,8 +36,10 @@ export const SigninPage = () => {
             receptionService.setSecretKey(receptionKey);
             setAuthInfoState(authInfo);
             setCheckSignin(true);
-          } catch (e: Error) {
-            notify(<ErrorMessage>{e.message}</ErrorMessage>);
+          } catch (e) {
+            if (isErrorResponse(e)) {
+              notify(<ErrorMessage>{e.message}</ErrorMessage>);
+            }
             console.error(e);
           }
         }}

@@ -1,4 +1,9 @@
-import { PersonReputation, ReceptionRow, ReputationRequest } from "./types";
+import {
+  ErrorResponse,
+  PersonReputation,
+  ReceptionRow,
+  ReputationRequest,
+} from "./types";
 import CryptoJS from "crypto-js";
 
 const { VITE_API_HOST } = import.meta.env;
@@ -33,9 +38,9 @@ class ReputationService {
     authToken: string,
     reception: ReceptionRow,
     myReputation: ReputationRequest,
-    options: { isSecondReputation?: boolean } = {}
+    options: { isSecondReputation?: boolean; isSkip?: boolean } = {}
   ): Promise<PersonReputation> {
-    const { isSecondReputation } = options;
+    const { isSecondReputation, isSkip } = options;
     const key = `${reception.name}-${reception.socialNum1}-${reception.socialNum2}`;
     const hashedKey = CryptoJS.SHA256(key).toString();
     const resp = await fetch(`${this.host}/api/reputation/${hashedKey}`, {
@@ -47,10 +52,11 @@ class ReputationService {
       body: JSON.stringify({
         reputation: myReputation,
         isSecondReputation,
+        isSkip,
       }),
     });
     if (!resp.ok) {
-      throw new Error("No reputation");
+      throw (await resp.json()) as ErrorResponse;
     }
     const reputationResp = await resp.json();
     return reputationResp satisfies PersonReputation;
