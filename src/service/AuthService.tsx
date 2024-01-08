@@ -36,7 +36,7 @@ class AuthService {
           receptionKey: this.hash(receptionKey),
         }),
       });
-      if (response.status !== 200) {
+      if (!response.ok) {
         const { message } = (await response.json()) as ErrorResponse;
         throw new Error(message as string);
       }
@@ -69,7 +69,7 @@ class AuthService {
           email: "",
         }),
       });
-      if (response.status !== 200) {
+      if (!response.ok) {
         throw new Error("Signup failed");
       }
     } catch (e) {
@@ -89,7 +89,7 @@ class AuthService {
       },
     });
 
-    if (response.status === 200) {
+    if (response.ok) {
       const authData = (await response.json()) as AuthInfo;
       this.user = authData.id;
       this.isRater = authData.isRater;

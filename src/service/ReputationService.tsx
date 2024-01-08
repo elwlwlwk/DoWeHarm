@@ -22,7 +22,7 @@ class ReputationService {
         Authorization: `Bearer ${authToken}`,
       },
     });
-    if (resp.status !== 200) {
+    if (!resp.ok) {
       throw new Error("No reputation");
     }
     const reputationResp = await resp.json();
@@ -49,7 +49,7 @@ class ReputationService {
         isSecondReputation,
       }),
     });
-    if (resp.status !== 200) {
+    if (!resp.ok) {
       throw new Error("No reputation");
     }
     const reputationResp = await resp.json();
