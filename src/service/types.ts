@@ -1,21 +1,29 @@
-export interface ErrorResponse {
-  message: string;
-}
+import { z } from "zod";
+
+export const zErrorResponse = z.object({
+  message: z.string(),
+});
+
+export type ErrorResponse = z.infer<typeof zErrorResponse>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isErrorResponse(obj: any): obj is ErrorResponse {
   return obj.message !== undefined;
 }
 
-export interface AuthInfo {
-  id: string;
-  isRater: boolean;
-}
+export const zAuthInfo = z.object({
+  id: z.string(),
+  isRater: z.boolean(),
+});
 
-export interface SigninResponse {
-  token: string;
-  message: AuthInfo;
-}
+export type AuthInfo = z.infer<typeof zAuthInfo>;
+
+export const zSigninResponse = z.object({
+  token: z.string(),
+  message: zAuthInfo,
+});
+
+export type SigninResponse = z.infer<typeof zSigninResponse>;
 
 export interface ReceptionResponse {
   encryptedReception: string;

@@ -1,4 +1,10 @@
-import { AuthInfo, ErrorResponse, SigninResponse } from "./types";
+import {
+  zSigninResponse,
+  type AuthInfo,
+  type ErrorResponse,
+  zAuthInfo,
+  zErrorResponse,
+} from "./types";
 const { VITE_API_HOST } = import.meta.env;
 import CryptoJS from "crypto-js";
 
@@ -37,11 +43,11 @@ class AuthService {
         }),
       });
       if (!response.ok) {
-        const { message } = (await response.json()) as ErrorResponse;
+        const { message } = zErrorResponse.parse(await response.json());
         throw new Error(message as string);
       }
 
-      const { token, message } = (await response.json()) as SigninResponse;
+      const { token, message } = zSigninResponse.parse(await response.json());
       localStorage.setItem("authToken", token);
       localStorage.setItem("receptionKey", receptionKey);
       return { ...message };
@@ -78,9 +84,11 @@ class AuthService {
     }
   }
 
-  async isSignin(): Promise<{ success: boolean; data: AuthInfo }> {
+  async isSignin(): Promise<
+    { success: true; data: AuthInfo } | { success: false }
+  > {
     const token = localStorage.getItem("authToken");
-    if (!token) return { success: false, data: {} as AuthInfo };
+    if (!token) return { success: false };
 
     const response = await fetch(`${this.host}/api/auth`, {
       method: "GET",
@@ -91,12 +99,12 @@ class AuthService {
     });
 
     if (response.ok) {
-      const authData = (await response.json()) as AuthInfo;
+      const authData = zAuthInfo.parse(await response.json());
       this.user = authData.id;
       this.isRater = authData.isRater;
       return { success: true, data: authData };
     } else {
-      return { success: false, data: {} as AuthInfo };
+      return { success: false };
     }
   }
 
