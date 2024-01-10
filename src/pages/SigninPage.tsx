@@ -4,7 +4,6 @@ import { authService } from "../service/AuthService";
 import { useRecoilState } from "recoil";
 import { authInfoState, checkSigninState } from "../recoil/auth/atoms";
 import { useContext, useState } from "react";
-import { receptionService } from "../service/ReceptionService";
 import { NotiContext } from "../App";
 import { ErrorMessage } from "../styles";
 import { isErrorResponse } from "../service/types";
@@ -33,7 +32,6 @@ export const SigninPage = () => {
               password,
               receptionKey
             );
-            receptionService.setSecretKey(receptionKey);
             setAuthInfoState(authInfo);
             setCheckSignin(true);
           } catch (e) {

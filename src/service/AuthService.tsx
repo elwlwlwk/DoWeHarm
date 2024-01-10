@@ -43,6 +43,7 @@ class AuthService {
 
       const { token, message } = (await response.json()) as SigninResponse;
       localStorage.setItem("authToken", token);
+      localStorage.setItem("receptionKey", receptionKey);
       return { ...message };
     } catch (e) {
       throw new Error(e as string);
@@ -103,6 +104,12 @@ class AuthService {
     const token = localStorage.getItem("authToken");
     if (!token) throw new Error("No token");
     return token;
+  }
+
+  getReceptionKey(): string {
+    const receptionKey = localStorage.getItem("receptionKey");
+    if (!receptionKey) throw new Error("No reception key");
+    return receptionKey;
   }
 }
 

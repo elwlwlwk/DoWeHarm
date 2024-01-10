@@ -9,7 +9,6 @@ import CryptoJS from "crypto-js";
 const { VITE_API_HOST } = import.meta.env;
 
 class ReceptionService {
-  secretKey: string = "";
   host: string;
   receptionLogs: ReceptionLog[] = [];
   reception: ReceptionBook;
@@ -21,44 +20,43 @@ class ReceptionService {
     };
   }
 
-  setSecretKey(secretKey: string): void {
-    this.secretKey = secretKey;
-  }
-
   async newReception(
     authToken: string,
+    receptionKey: string,
     name: string,
     socialNum1: string,
     socialNum2: string
   ) {
-    await this.postReceptionLog(authToken, {
+    await this.postReceptionLog(authToken, receptionKey, {
       action: "recept",
       name,
       socialNum1,
       socialNum2,
       regDateTime: new Date().toISOString(),
     } satisfies ReceptionLog);
-    await this.syncReceptionBook(authToken);
+    await this.syncReceptionBook(authToken, receptionKey);
   }
 
   async completeReception(
     authToken: string,
+    receptionKey: string,
     name: string,
     socialNum1: string,
     socialNum2: string
   ) {
-    await this.postReceptionLog(authToken, {
+    await this.postReceptionLog(authToken, receptionKey, {
       action: "complete",
       name,
       socialNum1,
       socialNum2,
       regDateTime: new Date().toISOString(),
     } satisfies ReceptionLog);
-    await this.syncReceptionBook(authToken);
+    await this.syncReceptionBook(authToken, receptionKey);
   }
 
   async postReceptionLog(
     authToken: string,
+    receptionKey: string,
     receptionLog: ReceptionLog
   ): Promise<void> {
     try {
@@ -71,7 +69,7 @@ class ReceptionService {
         body: JSON.stringify({
           data: CryptoJS.AES.encrypt(
             JSON.stringify(receptionLog),
-            this.secretKey
+            receptionKey
           ).toString(),
         }),
       });
@@ -80,7 +78,10 @@ class ReceptionService {
     }
   }
 
-  async fetchReceptionLogs(authToken: string): Promise<ReceptionLog[]> {
+  async fetchReceptionLogs(
+    authToken: string,
+    receptionKey: string
+  ): Promise<ReceptionLog[]> {
     try {
       const response = await fetch(`${this.host}/api/reception`, {
         method: "GET",
@@ -91,13 +92,13 @@ class ReceptionService {
       });
       const receptionLogs = (await response.json()) as ReceptionLogResponse[];
 
-      if (receptionLogs.length === this.receptionLogs.length)
-        return this.receptionLogs;
+      // if (receptionLogs.length === this.receptionLogs.length)
+      //   return this.receptionLogs;
 
       this.receptionLogs = receptionLogs.map((receptionLog) => {
         try {
           const data = JSON.parse(
-            CryptoJS.AES.decrypt(receptionLog.data, this.secretKey).toString(
+            CryptoJS.AES.decrypt(receptionLog.data, receptionKey).toString(
               CryptoJS.enc.Utf8
             )
           ) as ReceptionLog;
@@ -119,9 +120,15 @@ class ReceptionService {
     }
   }
 
-  async syncReceptionBook(authToken: string): Promise<ReceptionBook> {
+  async syncReceptionBook(
+    authToken: string,
+    receptionKey: string
+  ): Promise<ReceptionBook> {
     //fetch and rebuild reception data from reception logs
-    const receptionLogs = await this.fetchReceptionLogs(authToken);
+    const receptionLogs = await this.fetchReceptionLogs(
+      authToken,
+      receptionKey
+    );
     const reception: ReceptionBook = {
       waitings: [],
       completed: [],

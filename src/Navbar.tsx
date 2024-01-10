@@ -15,8 +15,9 @@ export const Navbar = () => {
       <Button
         onClick={() => {
           localStorage.removeItem("authToken");
+          localStorage.removeItem("receptionKey");
           setIsSignin(false);
-          setAuthInfoState({ isRater: false });
+          setAuthInfoState({ id: "", isRater: false });
           setCheckSignin(true);
         }}
       >

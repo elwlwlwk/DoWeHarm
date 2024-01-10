@@ -29,6 +29,7 @@ export const ReputationAction = ({ reception }: ReputationProps) => {
         onClick={() => {
           receptionService.completeReception(
             authService.getAuthToken(),
+            authService.getReceptionKey(),
             reception.name,
             reception.socialNum1,
             reception.socialNum2

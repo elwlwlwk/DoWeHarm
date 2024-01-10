@@ -1,17 +1,16 @@
-import { useRecoilState, useRecoilValue } from "recoil";
-import { authInfoState } from "../recoil/auth/atoms";
+import { useRecoilState } from "recoil";
 import { ReceptionPage } from "./reception/ReceptionPage";
 import { useInterval } from "usehooks-ts";
 import { receptionService } from "../service/ReceptionService";
 import { authService } from "../service/AuthService";
 import { receptionBookState } from "../recoil/reception/atoms";
-import { WorkPage } from "./work/WorkPage";
 
 export const HomePage = () => {
   const [, setReceptionBook] = useRecoilState(receptionBookState);
   useInterval(async () => {
     const receptionBook = await receptionService.syncReceptionBook(
-      authService.getAuthToken()
+      authService.getAuthToken(),
+      authService.getReceptionKey()
     );
     setReceptionBook(receptionBook);
   }, 1000);

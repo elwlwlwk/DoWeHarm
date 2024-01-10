@@ -1,29 +1,36 @@
 export const calcAge = (birthDate: string): number => {
-  // birthDate format: YYMMDD
-  const curYear = new Date().getFullYear().toString().substring(2, 4);
-  const yearPost = parseInt(birthDate.substring(0, 2));
-  const year = yearPost < parseInt(curYear) ? 2000 + yearPost : 1900 + yearPost;
-  const month = parseInt(birthDate.substring(2, 4)) - 1; // Month is 0-indexed in JavaScript Date
-  const day = parseInt(birthDate.substring(4, 6));
+  try {
+    // birthDate format: YYMMDD
+    const curYear = new Date().getFullYear().toString().substring(2, 4);
+    const yearPost = parseInt(birthDate.substring(0, 2));
+    const year =
+      yearPost < parseInt(curYear) ? 2000 + yearPost : 1900 + yearPost;
+    const month = parseInt(birthDate.substring(2, 4)) - 1; // Month is 0-indexed in JavaScript Date
+    const day = parseInt(birthDate.substring(4, 6));
 
-  // Create a new Date object for the birth date
-  const birthDateObj = new Date(year, month, day);
+    // Create a new Date object for the birth date
+    const birthDateObj = new Date(year, month, day);
 
-  // Get the current date
-  const currentDate = new Date();
+    // Get the current date
+    const currentDate = new Date();
 
-  // Calculate the difference in years
-  let age = currentDate.getFullYear() - birthDateObj.getFullYear();
+    // Calculate the difference in years
+    let age = currentDate.getFullYear() - birthDateObj.getFullYear();
 
-  // Adjust the age if the current date is before the birth date
-  if (
-    currentDate.getMonth() < month ||
-    (currentDate.getMonth() === month && currentDate.getDate() < day)
-  ) {
-    age--;
+    // Adjust the age if the current date is before the birth date
+    if (
+      currentDate.getMonth() < month ||
+      (currentDate.getMonth() === month && currentDate.getDate() < day)
+    ) {
+      age--;
+    }
+
+    if (isNaN(age)) return 0;
+
+    return age;
+  } catch (e) {
+    return 0;
   }
-
-  return age;
 };
 
 export const getSex = (socialNum2: string): string => {

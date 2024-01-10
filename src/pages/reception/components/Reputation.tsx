@@ -67,6 +67,7 @@ export const Reputation = ({ reception, onClose }: ReputationProps) => {
       );
       await receptionService.completeReception(
         authService.getAuthToken(),
+        authService.getReceptionKey(),
         reception.name,
         reception.socialNum1,
         reception.socialNum2
@@ -78,6 +79,7 @@ export const Reputation = ({ reception, onClose }: ReputationProps) => {
         if (e.message === ReputationErrors.ALREADY_RATED) {
           await receptionService.completeReception(
             authService.getAuthToken(),
+            authService.getReceptionKey(),
             reception.name,
             reception.socialNum1,
             reception.socialNum2

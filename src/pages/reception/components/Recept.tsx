@@ -1,34 +1,41 @@
 import { Button, Form, Input } from "antd";
 import { ReceptionTabBody } from "../styled";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { receptionService } from "../../../service/ReceptionService";
 import { authService } from "../../../service/AuthService";
 
 export const Recept = () => {
-  const [name, setName] = useState("");
-  const [socialNum1, setSocialNum1] = useState("");
-  const [socialNum2, setSocialNum2] = useState("");
-
+  const [form] = Form.useForm();
   useEffect(() => {
     return () => {
-      setName("");
-      setSocialNum1("");
-      setSocialNum2("");
+      form.resetFields();
     };
   }, []);
 
   return (
     <ReceptionTabBody>
       <Form
+        form={form}
         name="recept"
         requiredMark={false}
-        onFinish={async () => {
-          await receptionService.newReception(
-            authService.getAuthToken(),
-            name,
-            socialNum1,
-            socialNum2
-          );
+        onFinish={async (params: {
+          name: string;
+          socialNum1: string;
+          socialNum2: string;
+        }) => {
+          try {
+            const { name, socialNum1, socialNum2 } = params;
+            await receptionService.newReception(
+              authService.getAuthToken(),
+              authService.getReceptionKey(),
+              name,
+              socialNum1,
+              socialNum2
+            );
+            form.resetFields();
+          } catch (e) {
+            console.log(e);
+          }
         }}
       >
         <Form.Item
@@ -36,7 +43,7 @@ export const Recept = () => {
           label="성함"
           rules={[{ required: true, message: "성함을 입력해주세요." }]}
         >
-          <Input onChange={(e) => setName(e.target.value)} />
+          <Input />
         </Form.Item>
         <Form.Item label="주민번호">
           <Form.Item
@@ -49,7 +56,7 @@ export const Recept = () => {
               },
             ]}
           >
-            <Input onChange={(e) => setSocialNum1(e.target.value)} />
+            <Input />
           </Form.Item>
           <span>-</span>
           <Form.Item
@@ -62,7 +69,7 @@ export const Recept = () => {
               },
             ]}
           >
-            <Input onChange={(e) => setSocialNum2(e.target.value)} />
+            <Input />
           </Form.Item>
         </Form.Item>
         <Form.Item label=" " colon={false}>
