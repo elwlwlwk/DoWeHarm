@@ -7,6 +7,8 @@ import { useContext, useState } from "react";
 import { NotiContext } from "../App";
 import { ErrorMessage } from "../styles";
 import { isErrorResponse } from "../service/types";
+import { Link, redirect } from "react-router-dom";
+import { router } from "../router";
 
 export const SigninPage = () => {
   const { notify } = useContext(NotiContext);
@@ -89,12 +91,16 @@ export const SigninPage = () => {
           <Checkbox>Remember me</Checkbox>
         </Form.Item> */}
 
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+        <Form.Item
+          // wrapperCol={{ offset: 8, span: 16 }}
+          style={{ display: "inline-block" }}
+        >
           <Button type="primary" htmlType="submit">
             Submit
           </Button>
         </Form.Item>
       </Form>
+      <Link to={"/signup"}>Signup</Link>
     </MainLayout>
   );
 };

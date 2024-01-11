@@ -45,17 +45,16 @@ function App() {
     };
     checkSignin();
   }, [checkSignin, setCheckSignin, setIsSignin]);
+
+  if (!checkSignin && !isSignin) {
+    router.navigate("/signin");
+  }
+
   return (
     <>
       {contextHolder}
       <NotiContext.Provider value={{ notify }}>
-        {checkSignin ? (
-          <div>Loading</div>
-        ) : isSignin ? (
-          <RouterProvider router={router} />
-        ) : (
-          <SigninPage />
-        )}
+        {checkSignin ? <div>Loading</div> : <RouterProvider router={router} />}
       </NotiContext.Provider>
     </>
   );

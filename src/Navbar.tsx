@@ -9,20 +9,22 @@ import {
 export const Navbar = () => {
   const [, setCheckSignin] = useRecoilState(checkSigninState);
   const [, setAuthInfoState] = useRecoilState(authInfoState);
-  const [, setIsSignin] = useRecoilState(isSigninState);
+  const [isSignin, setIsSignin] = useRecoilState(isSigninState);
   return (
-    <div>
-      <Button
-        onClick={() => {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("receptionKey");
-          setIsSignin(false);
-          setAuthInfoState({ id: "", isRater: false });
-          setCheckSignin(true);
-        }}
-      >
-        Signout
-      </Button>
-    </div>
+    isSignin && (
+      <div>
+        <Button
+          onClick={() => {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("receptionKey");
+            setIsSignin(false);
+            setAuthInfoState({ id: "", isRater: false });
+            setCheckSignin(true);
+          }}
+        >
+          Signout
+        </Button>
+      </div>
+    )
   );
 };
