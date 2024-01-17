@@ -133,15 +133,20 @@ export const SignupPage = () => {
           required
           rules={[
             {
-              validator: (_, { fileList }: { fileList: File[] }) =>
-                fileList.reduce(
-                  (prev, curr) => prev && curr.size <= 1024 * 1024,
-                  true
+              validator: (_, { fileList }: { fileList: File[] }) => {
+                if (fileList.length > 5)
+                  Promise.reject(new Error("최대 5개까지 첨부할 수 있습니다."));
+
+                if (
+                  fileList.reduce(
+                    (prev, curr) => prev && curr.size <= 1024 * 1024,
+                    true
+                  ) === false
                 )
-                  ? Promise.resolve()
-                  : Promise.reject(
-                      new Error("파일 크기는 1MB 이하여야 합니다.")
-                    ),
+                  Promise.reject("파일 크기는 1MB 이하여야 합니다.");
+
+                Promise.resolve();
+              },
             },
           ]}
         >
