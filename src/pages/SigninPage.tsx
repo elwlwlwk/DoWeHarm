@@ -7,8 +7,7 @@ import { useContext, useState } from "react";
 import { NotiContext } from "../App";
 import { ErrorMessage } from "../styles";
 import { isErrorResponse } from "../service/types";
-import { Link, redirect } from "react-router-dom";
-import { router } from "../router";
+import { Link } from "react-router-dom";
 
 export const SigninPage = () => {
   const { notify } = useContext(NotiContext);

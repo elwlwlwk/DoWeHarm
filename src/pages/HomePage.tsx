@@ -6,13 +6,15 @@ import { authService } from "../service/AuthService";
 import { receptionBookState } from "../recoil/reception/atoms";
 
 export const HomePage = () => {
-  const [, setReceptionBook] = useRecoilState(receptionBookState);
+  const [receptionBook, setReceptionBook] = useRecoilState(receptionBookState);
   useInterval(async () => {
-    const receptionBook = await receptionService.syncReceptionBook(
+    const newReceptionBook = await receptionService.syncReceptionBook(
       authService.getAuthToken(),
       authService.getReceptionKey()
     );
-    setReceptionBook(receptionBook);
+    if (JSON.stringify(receptionBook) === JSON.stringify(newReceptionBook))
+      return;
+    setReceptionBook(newReceptionBook);
   }, 1000);
 
   return <ReceptionPage />;

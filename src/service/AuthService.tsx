@@ -1,3 +1,4 @@
+import { UploadFile } from "antd";
 import {
   zSigninResponse,
   type AuthInfo,
@@ -7,6 +8,7 @@ import {
 } from "./types";
 const { VITE_API_HOST } = import.meta.env;
 import CryptoJS from "crypto-js";
+import { readFile } from "../utils";
 
 class AuthService {
   host: string;
@@ -58,23 +60,38 @@ class AuthService {
 
   async signup(
     id: string,
-    password: string,
     raterPassword: string,
-    receptionKey: string
+    password: string,
+    receptionKey: string,
+    email: string,
+    attachments: File[],
+    memo: string
   ): Promise<undefined> {
     try {
+      const attachmentData = await Promise.all(
+        attachments.map(async (file) => {
+          const fileData = await readFile(file);
+          return {
+            name: file.name,
+            data: fileData,
+          };
+        })
+      );
+      const body = {
+        id,
+        password: this.hash(password),
+        raterPassword: this.hash(raterPassword),
+        receptionKey: this.hash(receptionKey),
+        email,
+        attachment: attachmentData,
+        memo,
+      };
       const response = await fetch(`${this.host}/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id,
-          password: this.hash(password),
-          raterPassword: this.hash(raterPassword),
-          receptionKey: this.hash(receptionKey),
-          email: "",
-        }),
+        body: JSON.stringify(body),
       });
       if (!response.ok) {
         throw new Error("Signup failed");
