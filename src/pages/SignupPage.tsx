@@ -1,11 +1,17 @@
 import { Button, Form, Input, Upload } from "antd";
 import { MainLayout } from "./MainLayout";
 import { UploadOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { UploadFile } from "antd/es/upload";
 import { authService } from "../service/AuthService";
+import { isErrorResponse } from "../service/types";
+import { ErrorMessage } from "../styles";
+import { NotiContext } from "../App";
+import { router } from "../router";
 
 export const SignupPage = () => {
+  const { notify } = useContext(NotiContext);
+
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   return (
@@ -26,15 +32,21 @@ export const SignupPage = () => {
           attachment: UploadFile[];
           memo: string;
         }) => {
-          authService.signup(
-            values.userId,
-            values.raterPassword,
-            values.receptionPassword,
-            values.receptionKey,
-            values.email,
-            fileList as unknown as File[],
-            values.memo
-          );
+          try {
+            await authService.signup(
+              values.userId,
+              values.raterPassword,
+              values.receptionPassword,
+              values.receptionKey,
+              values.email,
+              fileList as unknown as File[],
+              values.memo
+            );
+            router.navigate("/signin");
+          } catch (e) {
+            if (isErrorResponse(e))
+              notify(<ErrorMessage>{e.message}</ErrorMessage>);
+          }
         }}
       >
         <Form.Item label="아이디" name="userId" rules={[{ required: true }]}>
@@ -135,7 +147,9 @@ export const SignupPage = () => {
             {
               validator: (_, { fileList }: { fileList: File[] }) => {
                 if (fileList.length > 5)
-                  Promise.reject(new Error("최대 5개까지 첨부할 수 있습니다."));
+                  return Promise.reject(
+                    new Error("최대 5개까지 첨부할 수 있습니다.")
+                  );
 
                 if (
                   fileList.reduce(
@@ -143,9 +157,9 @@ export const SignupPage = () => {
                     true
                   ) === false
                 )
-                  Promise.reject("파일 크기는 1MB 이하여야 합니다.");
+                  return Promise.reject("파일 크기는 1MB 이하여야 합니다.");
 
-                Promise.resolve();
+                return Promise.resolve();
               },
             },
           ]}

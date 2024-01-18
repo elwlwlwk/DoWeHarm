@@ -5,6 +5,7 @@ import {
   type ErrorResponse,
   zAuthInfo,
   zErrorResponse,
+  isErrorResponse,
 } from "./types";
 const { VITE_API_HOST } = import.meta.env;
 import CryptoJS from "crypto-js";
@@ -94,7 +95,11 @@ class AuthService {
         body: JSON.stringify(body),
       });
       if (!response.ok) {
-        throw new Error("Signup failed");
+        const resp = await response.json();
+        if (isErrorResponse(resp)) {
+          const { message } = resp;
+          throw new Error(message as string);
+        }
       }
     } catch (e) {
       throw new Error(e as string);
