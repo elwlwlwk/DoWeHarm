@@ -3,14 +3,16 @@ import { MainLayout } from "./MainLayout";
 import { authService } from "../service/AuthService";
 import { useRecoilState } from "recoil";
 import { authInfoState, checkSigninState } from "../recoil/auth/atoms";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NotiContext } from "../App";
 import { ErrorMessage } from "../styles";
 import { isErrorResponse } from "../service/types";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import type { NavigateState } from "../types";
 
 export const SigninPage = () => {
   const { notify } = useContext(NotiContext);
+  const { message } = (useLocation()?.state ?? {}) as NavigateState;
 
   const [, setCheckSignin] = useRecoilState(checkSigninState);
   const [, setAuthInfoState] = useRecoilState(authInfoState);
@@ -18,6 +20,11 @@ export const SigninPage = () => {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [receptionKey, setReceptionKey] = useState("");
+
+  useEffect(() => {
+    if (message) notify(<ErrorMessage>{message}</ErrorMessage>);
+  }, [message]);
+
   return (
     <MainLayout>
       <Form

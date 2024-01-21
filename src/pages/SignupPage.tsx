@@ -42,7 +42,12 @@ export const SignupPage = () => {
               fileList as unknown as File[],
               values.memo
             );
-            router.navigate("/signin");
+            router.navigate("/signin", {
+              state: {
+                message:
+                  "가입 신청이 완료되었습니다. 관리자의 승인을 기다려주세요. 이메일로 승인 결과가 통보됩니다.",
+              },
+            });
           } catch (e) {
             if (isErrorResponse(e))
               notify(<ErrorMessage>{e.message}</ErrorMessage>);
@@ -135,7 +140,12 @@ export const SignupPage = () => {
         >
           <Input.Password />
         </Form.Item>
-        <Form.Item label="이메일" name="email" required>
+        <Form.Item
+          label="이메일"
+          name="email"
+          required
+          rules={[{ type: "email", message: "이메일 형식이 아닙니다." }]}
+        >
           <Input />
         </Form.Item>
 
