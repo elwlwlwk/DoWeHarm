@@ -9,12 +9,13 @@ import { ErrorMessage } from "../styles";
 import { isErrorResponse } from "../service/types";
 import { Link, useLocation } from "react-router-dom";
 import type { NavigateState } from "../types";
+import { router } from "../router";
 
 export const SigninPage = () => {
   const { notify } = useContext(NotiContext);
   const { message } = (useLocation()?.state ?? {}) as NavigateState;
 
-  const [, setCheckSignin] = useRecoilState(checkSigninState);
+  const [checkSignin, setCheckSignin] = useRecoilState(checkSigninState);
   const [, setAuthInfoState] = useRecoilState(authInfoState);
 
   const [id, setId] = useState("");
@@ -24,6 +25,14 @@ export const SigninPage = () => {
   useEffect(() => {
     if (message) notify(<ErrorMessage>{message}</ErrorMessage>);
   }, [message]);
+
+  useEffect(() => {
+    (async () => {
+      if ((await authService.isSignin()).success === true) {
+        router.navigate("/");
+      }
+    })();
+  }, [checkSignin]);
 
   return (
     <MainLayout>
@@ -42,6 +51,7 @@ export const SigninPage = () => {
             );
             setAuthInfoState(authInfo);
             setCheckSignin(true);
+            router.navigate("/");
           } catch (e) {
             if (isErrorResponse(e)) {
               notify(<ErrorMessage>{e.message}</ErrorMessage>);
