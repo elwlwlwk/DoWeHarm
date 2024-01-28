@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from "../utils";
 import {
   ReceptionBook,
   ReceptionLog,
@@ -60,7 +61,7 @@ class ReceptionService {
     receptionLog: ReceptionLog
   ): Promise<void> {
     try {
-      await fetch(`${this.host}/api/reception`, {
+      await fetchWithTimeout(`${this.host}/api/reception`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,7 +84,7 @@ class ReceptionService {
     receptionKey: string
   ): Promise<ReceptionLog[]> {
     try {
-      const response = await fetch(`${this.host}/api/reception`, {
+      const response = await fetchWithTimeout(`${this.host}/api/reception`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

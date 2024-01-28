@@ -1,3 +1,22 @@
+export const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const fetchWithTimeout = async (
+  url: string,
+  options: RequestInit = {},
+  timeout: number = 1000
+): Promise<Response> => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(url, {
+    ...options,
+    signal: controller.signal,
+  });
+  clearTimeout(id);
+  return response;
+};
+
 export const calcAge = (birthDate: string): number => {
   try {
     // birthDate format: YYMMDD
