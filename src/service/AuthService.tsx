@@ -1,8 +1,6 @@
-import { UploadFile } from "antd";
 import {
   zSigninResponse,
   type AuthInfo,
-  type ErrorResponse,
   zAuthInfo,
   zErrorResponse,
   isErrorResponse,

@@ -3,7 +3,6 @@ import "./App.css";
 import { router } from "./router";
 import { RouterProvider } from "react-router";
 import { authService } from "./service/AuthService";
-import { SigninPage } from "./pages/SigninPage";
 import { useRecoilState } from "recoil";
 import {
   authInfoState,
@@ -15,7 +14,7 @@ import React from "react";
 
 export const NotiContext = React.createContext({
   // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-  notify: (message: string | React.ReactElement) => {},
+  notify: (_: string | React.ReactElement) => {},
 });
 
 function App() {
